@@ -1,0 +1,6 @@
+name: HMP Auth0
+description: Tweaks for Auth0
+package: HMP Custom
+type: module
+core: 8.x
+version: 8.1.0

@@ -1,0 +1,77 @@
+<?php
+
+function hmp_auth0_get_data() {
+	$uid = \Drupal::currentUser()->id();
+	if($uid != 0) {
+	$user = \Drupal\user\Entity\User::load($uid);
+	$email = $user->getEmail();
+	$token = hmp_auth0_get_token();
+
+	$curl = curl_init();
+
+	curl_setopt_array($curl, array(
+		CURLOPT_URL => "https://hmpsso.auth0.com/api/v2/users-by-email?email=$email",
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_ENCODING => "",
+		CURLOPT_MAXREDIRS => 10,
+		CURLOPT_TIMEOUT => 30,
+		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		CURLOPT_CUSTOMREQUEST => "GET",
+		CURLOPT_HTTPHEADER => array(
+		"authorization: Bearer $token"
+		),
+	));
+
+	$response = curl_exec($curl);
+	$err = curl_error($curl);
+
+	curl_close($curl);
+
+	if ($err) {
+		echo "cURL Error #:" . $err;
+	} else {
+		$data = json_decode($response);
+		$user_data = array(
+			'email' => $user->getEmail(),
+			'first_name' => $data[0]->user_metadata->first_name,
+			'last_name' => $data[0]->user_metadata->last_name,
+			'degree' => $data[0]->user_metadata->degree,
+			'specialty' => $data[0]->user_metadata->specialty
+		);
+		return $user_data;
+	}
+	return null;
+	}
+}
+
+function hmp_auth0_get_token() {
+	$curl = curl_init();
+
+	curl_setopt_array($curl, array(
+		CURLOPT_URL => "https://hmpsso.auth0.com/oauth/token",
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_ENCODING => "",
+		CURLOPT_MAXREDIRS => 10,
+		CURLOPT_TIMEOUT => 30,
+		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		CURLOPT_CUSTOMREQUEST => "POST",
+		CURLOPT_POSTFIELDS => "{\"grant_type\":\"client_credentials\",\"client_id\": \"HDfEcyN3sCacfiEYsOEEmgbvidSMTf14\",\"client_secret\": \"hjnU5sIS-Z--x8YvjTinbP3DfLFe848vbDdjyLl-iTF54jwV1TQ44K3eWZdAnMd5\",\"audience\": \"https://hmpsso.auth0.com/api/v2/\"}",
+		CURLOPT_HTTPHEADER => array(
+		"content-type: application/json"
+		),
+	));
+
+	$response = curl_exec($curl);
+	$err = curl_error($curl);
+
+	curl_close($curl);
+
+	if ($err) {
+		echo "cURL Error #:" . $err;
+	} else {
+		$data = json_decode($response);
+		return $data->access_token;
+	}
+}
+
+?>
