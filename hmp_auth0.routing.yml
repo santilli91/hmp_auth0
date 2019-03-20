@@ -1,0 +1,7 @@
+hmp_auth0.config_form:
+  path: '/admin/config/hmp_auth0'
+  defaults:
+    _form: '\Drupal\hmp_auth0\Form\ConfigForm'
+    _title: 'HMP Auth0 Configuration'
+  requirements:
+    _permission: 'administer nodes'

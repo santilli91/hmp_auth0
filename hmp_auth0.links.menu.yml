@@ -1,0 +1,6 @@
+hmp_auth0.config_form:
+  title: 'HMP Auth0 Configuration'
+  description: 'Configuration Options for the HMP Auth0 Module.'
+  parent: system.admin_config_system
+  route_name: hmp_auth0.config_form
+  weight: 100
