@@ -15,6 +15,11 @@ class ConfigForm extends FormBase {
 			'#type' => 'item',
 			'#markup' => '<hr><h2>Auth0/Subscription Field Mapping</h2>',
 		);
+		$form['auth0_form_urls'] = array(
+				'#type' => 'textarea',
+				'#default_value' => $hmp_auth0['auth0_form_urls'],
+				'#title' => 'URI Paths for forms needing auto-filled.  (comma separated)',
+		);
 		$form['auth0_fields'] = array(
 			'#type' => 'textarea',
 			'#default_value' => $hmp_auth0['auth0_fields'],
@@ -41,6 +46,7 @@ class ConfigForm extends FormBase {
 	public function submitForm(array &$form, FormStateInterface $form_state) {
 		$hmp_auth0 = array(
 			'auth0_fields'			=>	$form_state->getValue('auth0_fields'),
+			'auth0_form_urls'			=>	$form_state->getValue('auth0_form_urls'),
 		);
 		\Drupal::state()->set('hmp_auth0',$hmp_auth0);
 	}

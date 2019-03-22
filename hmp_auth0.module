@@ -1,5 +1,33 @@
 <?php
 
+
+function hmp_auth0_preprocess_page(&$var) {
+	$user_data = hmp_auth0_get_data();
+	if($user_data['email'] != '' && !isset($_GET['formstack'])) {
+		$hmp_auth0 = \Drupal::state()->get('hmp_auth0');
+		$urls = explode(',',$hmp_auth0['auth0_form_urls']);
+		$query_string = '';
+		$uri = $_SERVER['REQUEST_URI'];
+		foreach($urls as $url) {
+			$form = explode('|',$url);
+			if(strpos($uri,$form[0]) !== FALSE) {
+				$query_string .= '&form_id=' . $form[1];
+				$field_groups = explode(',',$hmp_auth0['auth0_fields']);
+				foreach($field_groups as $field_group) {
+					$field = explode('|',$field_group);
+					if($user_data[$field[0]]) {
+							$query_string .= '&' . $field[1] . '=' . $user_data[$field[0]];
+					}
+				}
+			}
+		}
+		if($query_string != '') {
+
+			$query_string = '?formstack=1' . $query_string;
+			$var['page']['content'] = t("<script type='text/javascript' src='https://hmp.formstack.com/forms/js.php/wcln$query_string'></script>");		}
+	}
+}
+
 function hmp_auth0_get_data() {
 	$uid = \Drupal::currentUser()->id();
 	if($uid != 0) {
@@ -36,7 +64,10 @@ function hmp_auth0_get_data() {
 			'first_name' => $data[0]->user_metadata->first_name,
 			'last_name' => $data[0]->user_metadata->last_name,
 			'degree' => $data[0]->user_metadata->degree,
-			'specialty' => $data[0]->user_metadata->specialty
+			'specialty' => $data[0]->user_metadata->specialty,
+			'worksetting' => $data[0]->user_metadata->worksetting,
+			'company' => $data[0]->user_metadata->company,
+			'state' => $data[0]->user_metadata->state,
 		);
 		return $user_data;
 	}
